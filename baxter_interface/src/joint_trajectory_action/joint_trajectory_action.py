@@ -195,16 +195,16 @@ class JointTrajectoryActionServer(object):
         return zip(joint_names, error)
 
     def _update_feedback(self, cmd_point, jnt_names, cur_time):
-        self._fdbk.header.stamp = rospy.Duration.from_sec(rospy.get_time())
+        self._fdbk.header.stamp = rospy.get_rostime()#rospy.Duration.from_sec(rospy.get_rostime().secs)
         self._fdbk.joint_names = jnt_names
         self._fdbk.desired = cmd_point
         self._fdbk.desired.time_from_start = rospy.Duration.from_sec(cur_time)
         self._fdbk.actual.positions = self._get_current_position(jnt_names)
         self._fdbk.actual.time_from_start = rospy.Duration.from_sec(cur_time)
-        self._fdbk.error.positions = map(operator.sub,
+        self._fdbk.error.positions = list(map(operator.sub,
                                          self._fdbk.desired.positions,
                                          self._fdbk.actual.positions
-                                        )
+                                        ))
         self._fdbk.error.time_from_start = rospy.Duration.from_sec(cur_time)
         self._server.publish_feedback(self._fdbk)
 
